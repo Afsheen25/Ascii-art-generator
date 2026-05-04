@@ -565,19 +565,19 @@
 
    <div class="mode-selector">
     <div class="mode-card active" id="modeImgCard" onclick="setMode('image')">
-      <div class="mode-num">01 //</div>
+      <div class="mode-num">01 </div>
       <div class="mode-icon"></div>
       <div class="mode-title">Upload Image</div>
       <div class="mode-desc">Convert any photo, illustration, or graphic into ASCII art through pixel analysis.</div>
     </div>
     <div class="mode-card" id="modeTextCard" onclick="setMode('text')">
-      <div class="mode-num">02 //</div>
+      <div class="mode-num">02 </div>
       <div class="mode-icon"></div>
       <div class="mode-title">Text → ASCII</div>
       <div class="mode-desc">Type text, pick a font (including Arabic scripts), render to image, then convert to ASCII.</div>
     </div>
     <div class="mode-card" id="modeVidCard" onclick="setMode('video')">
-      <div class="mode-num">03 //</div>
+      <div class="mode-num">03 </div>
       <div class="mode-icon"></div>
       <div class="mode-title">Video → ASCII</div>
       <div class="mode-desc">Turn short clips into looping ASCII animations. Best with high-contrast, simple motion.</div>
@@ -730,7 +730,7 @@
   <div class="output-section" id="outputSection">
     <div class="divider"></div>
     <div class="output-header">
-      <div class="output-title">// ascii output</div>
+      <div class="output-title"></div>
       <div class="output-actions">
         <button class="action-btn" onclick="copyASCII()">Copy</button>
         <button class="action-btn" onclick="downloadASCII()">Download .txt</button>
@@ -884,7 +884,7 @@ function buildCharsetBox(containerId) {
   });
 
   html += `<div class="charset-group">
-    <div class="charset-group-label">Custom — enter chars from darkest → lightest, end with a space</div>
+    <div class="charset-group-label">Custom: enter chars from darkest → lightest, end with a space</div>
     <div class="custom-charset-row">
       <input class="custom-charset-input" id="customIn_${containerId}" type="text"
         placeholder="e.g.  @#*+:.  (space at end = background)" maxlength="80"
