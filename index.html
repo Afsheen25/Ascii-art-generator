@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ASCII Art Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Unbounded:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Cinzel:wght@400;600;900&family=Josefin+Sans:ital,wght@0,300;0,400;1,300&family=Raleway:ital,wght@0,300;0,400;1,300&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Parisienne&family=Sacramento&family=Allura&family=Tangerine:wght@400;700&family=Caveat:wght@400;500;600;700&family=Homemade+Apple&family=Mr+Dafoe&family=Alex+Brush&family=Bad+Script&family=Clicker+Script&family=Noto+Naskh+Arabic:wght@400;700&family=Noto+Kufi+Arabic:wght@400;700&family=Amiri:ital,wght@0,400;0,700;1,400&family=Scheherazade+New:wght@400;500;600;700&family=Reem+Kufi:wght@400;500;600;700&family=Lateef:wght@200;300;400;500;600;700;800&family=Aref+Ruqaa:wght@400;700&family=Harmattan:wght@400;500;600;700&family=Cairo:wght@200;300;400;600;700&family=Tajawal:wght@200;300;400;500;700&family=Almarai:wght@300;400;500;600;700;800&family=El+Messiri:wght@400;500;600;700&family=Changa:wght@200;300;400;500;600;700;800&family=IBM+Plex+Sans+Arabic:wght@100;200;300;400;500;600;700&family=Noto+Sans+Arabic:wght@100;200;300;400;500;600;700;800;900&family=Baloo+Bhaijaan+2:wght@400;500;600;700;800&family=Markazi+Text:wght@400;500;600;700&family=Noto+Nastaliq+Urdu:wght@400;700&family=Vazirmatn:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --font-display: 'Unbounded', sans-serif;
+    --font-mono: 'DM Mono', monospace;
+  }
+
+  [data-theme="dark"] {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #2a2a2a;
+    --border2: #383838;
+    --accent: #c8f564;
+    --accent2: #7ef5b0;
+    --text: #f0ede8;
+    --text2: #8a8780;
+    --text3: #555550;
+    --grid-color: #1e1e1e;
+    --select-bg: #1a1a1a;
+    --output-default: #c8f564;
+  }
+
+  [data-theme="light"] {
+    --bg: #f4f1ea;
+    --surface: #ffffff;
+    --surface2: #eeebe2;
+    --border: #d5d0c6;
+    --border2: #bab5aa;
+    --accent: #3d6b00;
+    --accent2: #006b3d;
+    --text: #1a1a18;
+    --text2: #5a5750;
+    --text3: #9a9790;
+    --grid-color: #e6e2d8;
+    --select-bg: #ffffff;
+    --output-default: #1e4000;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-mono);
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grid-color) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+    transition: background-image 0.3s;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 24px 80px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    padding: 40px 0 36px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 48px;
+    flex-wrap: wrap;
+  }
+
+  .header-left { display: flex; align-items: flex-end; gap: 24px; }
+
+  .logo-ascii {
+    font-family: var(--font-mono);
+    font-size: 8.5px;
+    line-height: 1.15;
+    color: var(--accent);
+    letter-spacing: 0;
+    white-space: pre;
+    flex-shrink: 0;
+    transition: color 0.3s;
+  }
+
+.color-picker-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.color-picker-wrap input[type="color"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 38px;
+  height: 38px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+}
+.color-picker-wrap input[type="color"]::-webkit-color-swatch-wrapper { padding: 2px; }
+.color-picker-wrap input[type="color"]::-webkit-color-swatch {
+  border: 2px solid var(--border2);
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+.color-picker-wrap input[type="color"]::-moz-color-swatch {
+  border: 2px solid var(--border2);
+  border-radius: 50%;
+}
+.color-hint {
+  font-size: 11px;
+  color: var(--text3);
+  letter-spacing: 0.05em;
+}
+/* Hide old toggle styles if they linger */
+.color-toggles { display: none !important; }
+
+ .header-text h1 {
+  font-family: 'Ballet', cursive; /* ← swap this name to change vibe */
+  font-size: 86px;
+  font-weight: 400;
+  color: var(--accent);
+  line-height: 1.15;
+  margin-bottom: 4px;
+  text-shadow: 0 4px 22px rgba(200, 245, 100, 0.18);
+  transform: rotate(-1.8deg); /* subtle handmade tilt */
+}
+
+.header-text p {
+  font-family: 'DM mono', cursive; /* Arabic-ready, loose & friendly */
+  font-size: 21px;
+  color: var(--text2);
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+@font-face {
+  font-family: 'Passions Conflict';
+  src: url('PassionsConflict-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@media (max-width: 640px) {
+  .header-text h1 { font-size: 52px; transform: rotate(0deg); }
+  .header-text p { font-size: 16px; }
+}
+  /* ── THEME TOGGLE ── */
+  .theme-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    flex-shrink: 0;
+    user-select: none;
+  }
+
+  .toggle-icons { display: flex; gap: 3px; font-size: 14px; }
+  .toggle-icon { opacity: 0.35; transition: opacity 0.25s; }
+  [data-theme="dark"] .icon-moon { opacity: 1; }
+  [data-theme="light"] .icon-sun { opacity: 1; }
+
+  .toggle-track {
+    width: 50px;
+    height: 27px;
+    background: var(--surface2);
+    border: 1px solid var(--border2);
+    border-radius: 14px;
+    position: relative;
+    transition: background 0.25s, border-color 0.25s;
+  }
+
+  .toggle-track:hover { border-color: var(--accent); }
+
+  .toggle-knob {
+    width: 19px;
+    height: 19px;
+    background: var(--accent);
+    border-radius: 50%;
+    position: absolute;
+    top: 3px;
+    left: 4px;
+    transition: transform 0.25s cubic-bezier(.4,0,.2,1), background 0.25s;
+  }
+
+  [data-theme="light"] .toggle-knob { transform: translateX(22px); }
+
+  .theme-label { font-size: 10px; color: var(--text3); letter-spacing: 0.15em; text-transform: uppercase; min-width: 30px; }
+
+  /* ── MODE CARDS ── */
+  .mode-selector { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 40px; }
+
+  .mode-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 28px 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .mode-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--accent);
+    transform: scaleX(0);
+    transition: transform 0.2s;
+    transform-origin: left;
+  }
+
+  .mode-card:hover { border-color: var(--border2); background: var(--surface2); }
+  .mode-card:hover::before, .mode-card.active::before { transform: scaleX(1); }
+  .mode-card.active { border-color: var(--accent); background: var(--surface2); }
+
+  .mode-num { font-size: 10px; color: var(--accent); letter-spacing: 0.2em; margin-bottom: 12px; }
+  .mode-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+  .mode-desc { font-size: 12px; color: var(--text2); line-height: 1.6; }
+  .mode-icon { font-size: 26px; margin-bottom: 14px; }
+
+  /* ── PANELS ── */
+  .panel { display: none; animation: fadeIn 0.3s ease; }
+  .panel.visible { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── UPLOAD ── */
+  .upload-zone {
+    border: 1px dashed var(--border2);
+    border-radius: 4px;
+    padding: 56px 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--surface);
+    position: relative;
+  }
+
+  .upload-zone:hover, .upload-zone.drag-over { border-color: var(--accent); background: var(--surface2); }
+
+  .upload-zone input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .upload-icon { font-size: 34px; margin-bottom: 14px; display: block; }
+  .upload-label { font-family: var(--font-display); font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+  .upload-sub { font-size: 11px; color: var(--text3); }
+
+  /* ── SETTINGS ── */
+  .settings-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 12px;
+    margin: 24px 0;
+  }
+
+  .setting-group { display: flex; flex-direction: column; gap: 8px; }
+
+  .setting-label { font-size: 10px; color: var(--text3); letter-spacing: 0.15em; text-transform: uppercase; }
+
+  select, input[type="text"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    outline: none;
+    transition: border-color 0.2s, background 0.3s, color 0.3s;
+    width: 100%;
+  }
+
+  select:focus, input[type="text"]:focus { border-color: var(--accent); }
+  select option { background: var(--select-bg); }
+
+  input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+  .range-row { display: flex; align-items: center; gap: 10px; }
+  .range-val { font-size: 12px; color: var(--accent); min-width: 36px; text-align: right; transition: color 0.3s; }
+
+  /* ── CHARSET SECTION ── */
+  .charset-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 18px 20px;
+    margin-bottom: 16px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .charset-section-title { font-size: 10px; color: var(--text3); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 16px; }
+
+  .charset-group { margin-bottom: 16px; }
+
+  .charset-group-label { font-size: 9px; color: var(--text3); letter-spacing: 0.18em; text-transform: uppercase; margin-bottom: 8px; opacity: 0.65; }
+
+  .charset-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .charset-pill {
+    padding: 5px 12px 4px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    cursor: pointer;
+    color: var(--text2);
+    transition: all 0.15s;
+    background: transparent;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .charset-pill:hover { border-color: var(--border2); color: var(--text); }
+  .charset-pill.active { border-color: var(--accent2); color: var(--accent2); background: rgba(126,245,176,0.06); }
+
+  .pill-name { font-family: var(--font-mono); font-size: 11px; }
+  .pill-preview { font-family: var(--font-mono); font-size: 9px; color: var(--text3); letter-spacing: 0.03em; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* Custom charset */
+  .custom-charset-row { display: flex; gap: 8px; margin-top: 10px; align-items: stretch; }
+
+  .custom-charset-input {
+    flex: 1;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 3px;
+    outline: none;
+    letter-spacing: 0.12em;
+    transition: border-color 0.2s;
+  }
+
+  .custom-charset-input::placeholder { color: var(--text3); font-size: 12px; letter-spacing: 0.05em; }
+  .custom-charset-input:focus { border-color: var(--accent); }
+
+  .custom-apply-btn {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text2);
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 8px 16px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+    letter-spacing: 0.05em;
+  }
+
+  .custom-apply-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* ── TEXT PANEL ── */
+  .text-input-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 16px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  #textInput {
+    width: 100%;
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: 28px;
+    padding: 10px 0;
+    margin-bottom: 16px;
+    border-radius: 0;
+    outline: none;
+    transition: color 0.3s, border-color 0.3s;
+  }
+
+  .font-previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+
+  .font-pill {
+    padding: 6px 14px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.15s;
+    color: var(--text2);
+    background: transparent;
+  }
+
+  .font-pill:hover { border-color: var(--border2); color: var(--text); }
+  .font-pill.active { border-color: var(--accent); color: var(--accent); }
+
+  /* ── GENERATE BTN ── */
+  .generate-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--accent);
+    color: #0a0a0a;
+    border: none;
+    padding: 14px 28px;
+    font-family: var(--font-display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s;
+    margin-top: 8px;
+  }
+
+  .generate-btn:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  .generate-btn:active { transform: translateY(0); }
+
+  /* ── OUTPUT ── */
+  .output-section { margin-top: 40px; display: none; }
+  .output-section.visible { display: block; }
+
+  .output-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .output-title { font-size: 10px; letter-spacing: 0.2em; color: var(--text3); text-transform: uppercase; }
+  .output-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+  .action-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 6px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+    letter-spacing: 0.05em;
+  }
+
+  .action-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+  #asciiOutput {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    font-family: var(--font-mono);
+    font-size: 8px;
+    line-height: 1.1;
+    letter-spacing: 0.05em;
+    white-space: pre;
+    overflow-x: auto;
+    color: var(--output-default);
+    min-height: 120px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+
+  .output-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .color-toggles { display: flex; gap: 7px; flex-wrap: wrap; }
+
+  .color-toggle {
+    width: 21px;
+    height: 21px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.15s;
+    outline: none;
+  }
+
+  .color-toggle:hover { transform: scale(1.2); }
+  .color-toggle.active { border-color: var(--text); }
+
+  /* ── MISC ── */
+  .loading-bar { height: 2px; background: var(--border); border-radius: 2px; overflow: hidden; margin-top: 16px; display: none; }
+  .loading-bar.visible { display: block; }
+
+  .loading-bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    animation: load 1.5s ease-in-out forwards;
+  }
+
+  @keyframes load { 0% { width: 0%; } 60% { width: 80%; } 100% { width: 100%; } }
+
+  .status-msg { font-size: 11px; color: var(--text3); margin-top: 8px; letter-spacing: 0.05em; }
+
+  .img-preview-wrap { margin: 16px 0; display: none; }
+  .img-preview-wrap.visible { display: block; }
+  #imgPreview { max-width: 200px; max-height: 150px; border: 1px solid var(--border); border-radius: 3px; display: block; }
+  .img-preview-label { font-size: 10px; color: var(--text3); margin-bottom: 6px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+  .divider { height: 1px; background: var(--border); margin: 28px 0; transition: background 0.3s; }
+
+  @media (max-width: 640px) {
+    .mode-selector { grid-template-columns: 1fr; }
+    .logo-ascii { display: none; }
+    #asciiOutput { font-size: 5px; }
+  }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Ballet:wght@400&family=Mrs+Saint+Delafield:wght@400&family=Miss+Fajardose:wght@400&family=Qahiri:wght@400;700&family=Alkalami:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+   <div class="header-left">
+  <div class="header-text">
+    <h1><A></A>Ascii Art Generator</h1>
+    <p>turn your words into ASCII Art</p>
+  </div>
+</div>
+
+    <div class="theme-toggle" onclick="toggleTheme()" title="Switch theme">
+      <div class="toggle-icons">
+        <span class="toggle-icon icon-moon">🌙</span>
+        <span class="toggle-icon icon-sun">☀️</span>
+      </div>
+      <div class="toggle-track">
+        <div class="toggle-knob"></div>
+      </div>
+      <span class="theme-label" id="themeLabel">Dark</span>
+    </div>
+  </header>
+
+   <div class="mode-selector">
+    <div class="mode-card active" id="modeImgCard" onclick="setMode('image')">
+      <div class="mode-num">01 //</div>
+      <div class="mode-icon"></div>
+      <div class="mode-title">Upload Image</div>
+      <div class="mode-desc">Convert any photo, illustration, or graphic into ASCII art through pixel analysis.</div>
+    </div>
+    <div class="mode-card" id="modeTextCard" onclick="setMode('text')">
+      <div class="mode-num">02 //</div>
+      <div class="mode-icon"></div>
+      <div class="mode-title">Text → ASCII</div>
+      <div class="mode-desc">Type text, pick a font (including Arabic scripts), render to image, then convert to ASCII.</div>
+    </div>
+    <div class="mode-card" id="modeVidCard" onclick="setMode('video')">
+      <div class="mode-num">03 //</div>
+      <div class="mode-icon"></div>
+      <div class="mode-title">Video → ASCII</div>
+      <div class="mode-desc">Turn short clips into looping ASCII animations. Best with high-contrast, simple motion.</div>
+    </div>
+  </div>
+    <!-- IMAGE PANEL -->
+  <div class="panel visible" id="imgPanel">
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" accept="image/*" id="fileInput" onchange="handleFileSelect(event)">
+      <span class="upload-icon"></span>
+      <div class="upload-label">Drop image here or click to browse</div>
+      <div class="upload-sub">PNG, JPG, GIF, WEBP — any size</div>
+    </div>
+
+    <div class="img-preview-wrap" id="imgPreviewWrap">
+      <div class="img-preview-label">Source image</div>
+      <img id="imgPreview" src="" alt="preview">
+    </div>
+
+    <div class="divider"></div>
+    <div class="settings-row">
+      <div class="setting-group">
+        <div class="setting-label">Output Width</div>
+        <div class="range-row">
+          <input type="range" min="40" max="220" value="100" id="imgWidthRange" oninput="document.getElementById('imgWidthVal').textContent=this.value">
+          <span class="range-val" id="imgWidthVal">100</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Brightness</div>
+        <div class="range-row">
+          <input type="range" min="-100" max="100" value="0" id="brightnessRange" oninput="document.getElementById('brightnessVal').textContent=this.value">
+          <span class="range-val" id="brightnessVal">0</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Contrast</div>
+        <div class="range-row">
+          <input type="range" min="-100" max="100" value="10" id="contrastRange" oninput="document.getElementById('contrastVal').textContent=this.value">
+          <span class="range-val" id="contrastVal">10</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Invert</div>
+        <div class="range-row">
+          <input type="range" min="0" max="1" step="1" value="0" id="invertRange" oninput="document.getElementById('invertVal').textContent=this.value=='1'?'yes':'no'">
+          <span class="range-val" id="invertVal">no</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="charsetBoxImg"></div>
+
+    <button class="generate-btn" onclick="generateFromImage()"> Generate ASCII Art</button>
+    <div class="loading-bar" id="imgLoadBar"><div class="loading-bar-fill"></div></div>
+    <div class="status-msg" id="imgStatus"></div>
+  </div>
+
+  <!-- TEXT PANEL -->
+  <div class="panel" id="textPanel">
+    <div class="text-input-area">
+      <input type="text" id="textInput" placeholder="Type your text here..." value="Hello">
+      <div style="margin-top:12px">
+        <div class="setting-label" style="margin-bottom:8px">Font Style</div>
+        <div class="font-previews" id="fontPreviews"></div>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <div class="setting-group">
+        <div class="setting-label">Font Size</div>
+        <div class="range-row">
+          <input type="range" min="30" max="160" value="100" id="fontSizeRange" oninput="document.getElementById('fontSizeVal').textContent=this.value+'px'">
+          <span class="range-val" id="fontSizeVal">100px</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Output Width</div>
+        <div class="range-row">
+          <input type="range" min="80" max="300" value="150" id="txtWidthRange" oninput="document.getElementById('txtWidthVal').textContent=this.value">
+          <span class="range-val" id="txtWidthVal">150</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Bold Weight</div>
+        <div class="range-row">
+          <input type="range" min="0" max="1" step="1" value="1" id="boldRange" oninput="document.getElementById('boldVal').textContent=this.value=='1'?'yes':'no'">
+          <span class="range-val" id="boldVal">yes</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Text Optimization</div>
+        <div class="range-row">
+          <input type="checkbox" id="textOptimize" checked style="width:auto">
+          <span style="font-size:11px;color:var(--text2)">High contrast mode</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="charsetBoxTxt"></div>
+
+    <button class="generate-btn" onclick="generateFromText()"> Generate ASCII Art</button>
+    <div class="loading-bar" id="txtLoadBar"><div class="loading-bar-fill"></div></div>
+    <div class="status-msg" id="txtStatus"></div>
+  </div>
+
+  <!-- VIDEO PANEL -->
+  <div class="panel" id="videoPanel">
+    <div class="upload-zone" id="videoUploadZone">
+      <input type="file" accept="video/*" id="videoInput" onchange="handleVideoSelect(event)">
+      <span class="upload-icon">🎬</span>
+      <div class="upload-label">Drop video here or click to browse</div>
+      <div class="upload-sub">MP4, WEBM, MOV — keep it under 10s for smooth playback</div>
+    </div>
+
+    <div class="settings-row">
+      <div class="setting-group">
+        <div class="setting-label">Playback FPS</div>
+        <div class="range-row">
+          <input type="range" min="4" max="15" value="8" id="videoFpsRange" oninput="document.getElementById('videoFpsVal').textContent=this.value">
+          <span class="range-val" id="videoFpsVal">8</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Width</div>
+        <div class="range-row">
+          <input type="range" min="60" max="140" value="90" id="videoWidthRange" oninput="document.getElementById('videoWidthVal').textContent=this.value">
+          <span class="range-val" id="videoWidthVal">90</span>
+        </div>
+      </div>
+      <div class="setting-group">
+        <div class="setting-label">Max Duration</div>
+        <div class="range-row">
+          <input type="range" min="3" max="15" value="6" id="videoMaxDurRange" oninput="document.getElementById('videoMaxDurVal').textContent=this.value+'s'">
+          <span class="range-val" id="videoMaxDurVal">6s</span>
+        </div>
+      </div>
+    </div>
+
+    <div id="charsetBoxVid"></div>
+
+    <button class="generate-btn" onclick="generateFromVideo()">Convert to ASCII Video</button>
+    <div class="loading-bar" id="videoLoadBar"><div class="loading-bar-fill"></div></div>
+    <div class="status-msg" id="videoStatus"></div>
+  </div>
+
+
+
+  <!-- OUTPUT -->
+  <div class="output-section" id="outputSection">
+    <div class="divider"></div>
+    <div class="output-header">
+      <div class="output-title">// ascii output</div>
+      <div class="output-actions">
+        <button class="action-btn" onclick="copyASCII()">Copy</button>
+        <button class="action-btn" onclick="downloadASCII()">Download .txt</button>
+        <button class="action-btn" onclick="downloadPNG()">Save as PNG</button>
+      </div>
+    </div>
+
+        <div class="output-controls">
+      <div class="color-picker-wrap">
+        <input type="color" id="colorPicker" value="#c8f564" title="Pick output color">
+        <span class="color-hint">click to open wheel</span>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:10px;flex-shrink:0">
+        <span style="font-size:11px;color:var(--text3)">SIZE</span>
+        <input type="range" min="4" max="16" value="8" step="0.5" style="width:80px" oninput="document.getElementById('asciiOutput').style.fontSize=this.value+'px'">
+      </div>
+    </div>
+
+    <pre id="asciiOutput"></pre>
+  </div>
+
+</div>
+<canvas id="workCanvas" style="display:none"></canvas>
+
+<script>
+// ── DATA ──────────────────────────────────────────────────────────────────────
+
+const CHARSETS = {
+  gradient: [
+    { key: 'Detailed',  chars: '@%#*+=-:. ',   preview: '@%#*+=-:.' },
+    { key: 'Dense',     chars: '$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?-_+~<>i!lI;:,"^`. ', preview: '$@B%8&WM#*o' },
+    { key: 'Blocks',    chars: '█▓▒░ ',          preview: '█▓▒░' },
+    { key: 'Minimal',   chars: '█▄▌ ',           preview: '█▄▌' },
+    { key: 'Simple',    chars: '#=-. ',          preview: '#=-.' },
+  ],
+  single: [
+    { key: '# Hash',    chars: '#########  ',   preview: '#########' },
+    { key: '* Asterisk',chars: '*********  ',   preview: '*********' },
+    { key: '. Dot',     chars: '.........  ',   preview: '.........' },
+    { key: '@ At',      chars: '@@@@@@@@@  ',   preview: '@@@@@@@@@' },
+    { key: '+ Plus',    chars: '+++++++++  ',   preview: '+++++++++' },
+    { key: '/ Slash',   chars: '/////////  ',   preview: '/////////' },
+    { key: '| Pipe',    chars: '|||||||||  ',   preview: '|||||||||' },
+    { key: '- Dash',    chars: '---------  ',   preview: '---------' },
+    { key: 'O Zero',    chars: 'OOOOOOOOO  ',   preview: 'OOOOOOOOO' },
+    { key: ': Colon',   chars: ':::::::::  ',   preview: ':::::::::' },
+    { key: '^ Caret',   chars: '^^^^^^^^^  ',   preview: '^^^^^^^^^' },
+    { key: '~ Tilde',   chars: '~~~~~~~~~  ',   preview: '~~~~~~~~~' },
+    { key: '$ Dollar',  chars: '$$$$$$$$$  ',   preview: '$$$$$$$$$' },
+    { key: '% Percent', chars: '%%%%%%%%%  ',   preview: '%%%%%%%%%' },
+    { key: '✦ Star',    chars: '✦✦✦✦✦✦  ',  preview: '✦✦✦✦✦✦✦✦' },
+    { key: '• Bullet',  chars: '•••••••••  ',   preview: '•••••••••' },
+  ],
+  decorative: [
+    { key: 'Braille',   chars: '⣿⣷⣦⢠⠒⠐⠀',    preview: '⣿⣦⡄⠤⠐' },
+    { key: 'Geometry',  chars: '◈◆●▪▫ ',         preview: '◈◆●▪▫' },
+    { key: 'Binary',    chars: '10 ',             preview: '10' },
+    { key: 'Lines',     chars: '═╡╞╔╗║─ ',       preview: '═╞╔╗║─' },
+    { key: 'Arrows',    chars: '▶▲▼◆◇ ',        preview: '▶▲▼◆◇' },
+  ],
+};
+
+const GROUP_LABELS = {
+  gradient:   'Gradient sets — rich tonal detail',
+  single:     'Single character — uniform texture',
+  decorative: 'Decorative & special chars',
+};
+
+let activeCharsetKey = 'Detailed';
+let customCharsetStr = '';
+let activeFont = 'Unbounded';
+let currentMode = 'image';
+let currentASCII = '';
+let loadedImage = null;
+
+
+
+
+const FONTS = [
+  // ✨ NEW: Fancy & Elegant Scripts (added to top for quick access)
+  { name: 'Ballet',             label: 'Ballet',             css: "'Ballet', cursive",             arabic: false },
+  { name: 'Mrs Saint Delafield',label: 'Mrs Saint Delafield',css: "'Mrs Saint Delafield', cursive",arabic: false },
+  { name: 'Miss Fajardose',     label: 'Miss Fajardose',     css: "'Miss Fajardose', cursive",     arabic: false },
+  { name: 'Passions Conflict',  label: 'Passions Conflict',  css: "'Passions Conflict', cursive",  arabic: false }, // ⚠️ Not on Google Fonts. Will fallback gracefully unless you host it locally.
+
+  // ── ENGLISH: HANDWRITING & CALLIGRAPHY ──
+  { name: 'Unbounded',        label: 'Unbounded',        css: "'Unbounded', sans-serif",           arabic: false },
+  { name: 'DM Mono',          label: 'DM Mono',          css: "'DM Mono', monospace",              arabic: false },
+  { name: 'Playfair Display', label: 'Playfair Display', css: "'Playfair Display', serif",         arabic: false },
+  { name: 'Cormorant Garamond',label:'Cormorant Garamond',css:"'Cormorant Garamond', serif",      arabic: false },
+  { name: 'Cinzel',           label: 'Cinzel',           css: "'Cinzel', serif",                   arabic: false },
+  { name: 'Josefin Sans',     label: 'Josefin Sans',     css: "'Josefin Sans', sans-serif",        arabic: false },
+  { name: 'Raleway',          label: 'Raleway',          css: "'Raleway', sans-serif",             arabic: false },
+  { name: 'Dancing Script',   label: 'Dancing Script',   css: "'Dancing Script', cursive",         arabic: false },
+  { name: 'Great Vibes',      label: 'Great Vibes',      css: "'Great Vibes', cursive",            arabic: false },
+  { name: 'Space Mono',       label: 'Space Mono',       css: "'Space Mono', monospace",           arabic: false },
+  { name: 'Parisienne',       label: 'Parisienne',       css: "'Parisienne', cursive",             arabic: false },
+  { name: 'Sacramento',       label: 'Sacramento',       css: "'Sacramento', cursive",             arabic: false },
+  { name: 'Allura',           label: 'Allura',           css: "'Allura', cursive",                 arabic: false },
+  { name: 'Tangerine',        label: 'Tangerine',        css: "'Tangerine', cursive",              arabic: false },
+  { name: 'Caveat',           label: 'Caveat',           css: "'Caveat', cursive",                 arabic: false },
+  { name: 'Homemade Apple',   label: 'Homemade Apple',   css: "'Homemade Apple', cursive",         arabic: false },
+  { name: 'Mr Dafoe',         label: 'Mr Dafoe',         css: "'Mr Dafoe', cursive",               arabic: false },
+  { name: 'Alex Brush',       label: 'Alex Brush',       css: "'Alex Brush', cursive",             arabic: false },
+  { name: 'Bad Script',       label: 'Bad Script',       css: "'Bad Script', cursive",             arabic: false },
+  { name: 'Clicker Script',   label: 'Clicker Script',   css: "'Clicker Script', cursive",         arabic: false },
+
+  // ── ARABIC: FANCY & CALLIGRAPHIC ──
+  { name: 'Qahiri',           label: 'Qahiri قاهري',     css: "'Qahiri', serif",                   arabic: true  },
+  { name: 'Alkalami',         label: 'Alkalami أقلمي',   css: "'Alkalami', serif",                 arabic: true  },
+  { name: 'Amiri',            label: 'Amiri أميري',      css: "'Amiri', serif",                    arabic: true  },
+  { name: 'Noto Naskh Arabic',label: 'Naskh نسخ',        css: "'Noto Naskh Arabic', serif",        arabic: true  },
+  { name: 'Noto Kufi Arabic', label: 'Kufi كوفي',        css: "'Noto Kufi Arabic', sans-serif",    arabic: true  },
+  { name: 'Scheherazade New', label: 'Scheherazade',     css: "'Scheherazade New', serif",         arabic: true  },
+  { name: 'Reem Kufi',        label: 'Reem Kufi ريم',    css: "'Reem Kufi', sans-serif",           arabic: true  },
+  { name: 'Lateef',           label: 'Lateef لطيف',      css: "'Lateef', serif",                   arabic: true  },
+  { name: 'Aref Ruqaa',       label: 'Ruqaa رقعة',       css: "'Aref Ruqaa', serif",               arabic: true  },
+  { name: 'Harmattan',        label: 'Harmattan',        css: "'Harmattan', sans-serif",           arabic: true  },
+  { name: 'Cairo',            label: 'Cairo القاهرة',    css: "'Cairo', sans-serif",               arabic: true  },
+  { name: 'Tajawal',          label: 'Tajawal تجوال',    css: "'Tajawal', sans-serif",             arabic: true  },
+  { name: 'Almarai',          label: 'Almarai المرعي',   css: "'Almarai', sans-serif",             arabic: true  },
+  { name: 'El Messiri',       label: 'El Messiri المسيري',css: "'El Messiri', sans-serif",          arabic: true  },
+  { name: 'Changa',           label: 'Changa تشانجا',    css: "'Changa', sans-serif",              arabic: true  },
+  { name: 'IBM Plex Sans Arabic',label:'IBM Plex عربي', css: "'IBM Plex Sans Arabic', sans-serif", arabic: true  },
+  { name: 'Noto Sans Arabic', label: 'Noto Sans عربي',   css: "'Noto Sans Arabic', sans-serif",    arabic: true  },
+  { name: 'Baloo Bhaijaan 2', label: 'Baloo بلو',        css: "'Baloo Bhaijaan 2', cursive",       arabic: true  },
+  { name: 'Markazi Text',     label: 'Markazi مركزي',    css: "'Markazi Text', serif",             arabic: true  },
+  { name: 'Noto Nastaliq Urdu',label:'Nastaliq نستعليق',css: "'Noto Nastaliq Urdu', serif",       arabic: true  },
+  { name: 'Vazirmatn',        label: 'Vazirmatn وزیرمتن',css: "'Vazirmatn', sans-serif",           arabic: true  },
+  { name: 'serif',            label: 'Serif Fallback',   css: "Georgia, serif",                    arabic: false },
+];
+
+// ── BUILD CHARSET BOXES ───────────────────────────────────────────────────────
+
+function buildCharsetBox(containerId) {
+  const el = document.getElementById(containerId);
+  let html = `<div class="charset-section"><div class="charset-section-title">Character Set</div>`;
+
+  Object.entries(CHARSETS).forEach(([group, items]) => {
+    html += `<div class="charset-group">
+      <div class="charset-group-label">${GROUP_LABELS[group]}</div>
+      <div class="charset-pills">`;
+    items.forEach(item => {
+      const active = item.key === activeCharsetKey ? ' active' : '';
+      html += `<div class="charset-pill${active}" data-key="${item.key}" onclick="selectCharset('${item.key}')">
+        <span class="pill-name">${item.key}</span>
+        <span class="pill-preview">${item.preview}</span>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+
+  html += `<div class="charset-group">
+    <div class="charset-group-label">Custom — enter chars from darkest → lightest, end with a space</div>
+    <div class="custom-charset-row">
+      <input class="custom-charset-input" id="customIn_${containerId}" type="text"
+        placeholder="e.g.  @#*+:.  (space at end = background)" maxlength="80"
+        oninput="mirrorCustom(this,'${containerId}')">
+      <button class="custom-apply-btn" onclick="applyCustom('${containerId}')">Apply ↵</button>
+    </div>
+  </div></div>`;
+
+  el.innerHTML = html;
+}
+
+function selectCharset(key) {
+  activeCharsetKey = key;
+  customCharsetStr = '';
+  document.querySelectorAll('.charset-pill').forEach(p => {
+    p.classList.toggle('active', p.dataset.key === key);
+  });
+}
+
+function mirrorCustom(srcEl, srcId) {
+  ['charsetBoxImg','charsetBoxTxt'].forEach(id => {
+    if (id === srcId) return;
+    const el = document.getElementById(`customIn_${id}`);
+    if (el) el.value = srcEl.value;
+  });
+}
+
+function applyCustom(containerId) {
+  const val = document.getElementById(`customIn_${containerId}`).value;
+  if (val.length < 2) { alert('Enter at least 2 characters.'); return; }
+  customCharsetStr = val;
+  activeCharsetKey = '__custom__';
+  document.querySelectorAll('.charset-pill').forEach(p => p.classList.remove('active'));
+  const btn = document.querySelector(`#${containerId} .custom-apply-btn`);
+  btn.textContent = '✓ Applied!';
+  setTimeout(() => btn.textContent = 'Apply ↵', 1600);
+}
+
+function getCharset() {
+  if (activeCharsetKey === '__custom__' && customCharsetStr.length >= 2) return customCharsetStr;
+  const all = [...CHARSETS.gradient, ...CHARSETS.single, ...CHARSETS.decorative];
+  return (all.find(x => x.key === activeCharsetKey) || all[0]).chars;
+}
+
+// ── BUILD FONT PILLS ──────────────────────────────────────────────────────────
+
+function buildFontPills() {
+  const c = document.getElementById('fontPreviews');
+  c.innerHTML = '';
+  FONTS.forEach(f => {
+    const p = document.createElement('div');
+    p.className = 'font-pill' + (f.name === activeFont ? ' active' : '');
+    p.style.fontFamily = f.css;
+    if (f.arabic) p.style.direction = 'rtl';
+    p.textContent = f.label;
+    p.onclick = () => {
+      document.querySelectorAll('#fontPreviews .font-pill').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      activeFont = f.name;
+      const inp = document.getElementById('textInput');
+      inp.style.fontFamily = f.css;
+      inp.style.direction = f.arabic ? 'rtl' : 'ltr';
+    };
+    c.appendChild(p);
+  });
+}
+
+// ── BUILD COLOR TOGGLES ──────────────────────────────────────────────────────
+
+function buildColorToggles() {
+  const c = document.getElementById('colorToggles');
+  c.innerHTML = '';
+  PALETTE.forEach((color, i) => {
+    const d = document.createElement('div');
+    d.className = 'color-toggle' + (i === 0 ? ' active' : '');
+    d.style.background = color;
+    if (color === '#f0ede8' || color === '#1a1a18') d.style.border = '2px solid var(--border2)';
+    d.onclick = () => {
+      outputColor = color;
+      document.getElementById('asciiOutput').style.color = color;
+      document.querySelectorAll('.color-toggle').forEach(t => t.classList.remove('active'));
+      d.classList.add('active');
+    };
+    c.appendChild(d);
+  });
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────────
+
+
+
+buildCharsetBox('charsetBoxImg');
+buildCharsetBox('charsetBoxTxt');
+buildFontPills();
+buildCharsetBox('charsetBoxVid');
+// ── COLOR PICKER SETUP ──
+const colorPicker = document.getElementById('colorPicker');
+let outputColor = document.documentElement.getAttribute('data-theme') === 'dark' 
+  ? '#c8f564' 
+  : '#1a4a0a'; // Rich dark green for light mode (fixes visibility)
+
+colorPicker.value = outputColor;
+document.getElementById('asciiOutput').style.color = outputColor;
+
+colorPicker.addEventListener('input', (e) => {
+  outputColor = e.target.value;
+  document.getElementById('asciiOutput').style.color = outputColor;
+});
+
+// ── THEME ─────────────────────────────────────────────────────────────────────
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const wasDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', wasDark ? 'light' : 'dark');
+  document.getElementById('themeLabel').textContent = wasDark ? 'Light' : 'Dark';
+  if (!outputColor) document.getElementById('asciiOutput').style.color = '';
+}
+
+// ── MODE ─────────────────────────────────────────────────────────────────────
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('imgPanel').classList.toggle('visible', mode === 'image');
+  document.getElementById('textPanel').classList.toggle('visible', mode === 'text');
+  document.getElementById('modeImgCard').classList.toggle('active', mode === 'image');
+  document.getElementById('modeTextCard').classList.toggle('active', mode === 'text');
+  document.getElementById('outputSection').classList.remove('visible');
+}
+
+// ── FILE HANDLING ─────────────────────────────────────────────────────────────
+
+const uploadZone = document.getElementById('uploadZone');
+uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('drag-over'); });
+uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('drag-over'));
+uploadZone.addEventListener('drop', e => {
+  e.preventDefault();
+  uploadZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.type.startsWith('image/')) loadImageFile(f);
+});
+
+function handleFileSelect(e) { if (e.target.files[0]) loadImageFile(e.target.files[0]); }
+
+function loadImageFile(file) {
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const img = new Image();
+    img.onload = () => {
+      loadedImage = img;
+      document.getElementById('imgPreview').src = ev.target.result;
+      document.getElementById('imgPreviewWrap').classList.add('visible');
+      document.getElementById('imgStatus').textContent = `✓ Loaded: ${file.name} (${img.width}×${img.height}px)`;
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// ─ CORE ASCII ────────────────────────────────────────────────────────────────
+
+function applyFilters(ctx, w, h, brightness, contrast, invert) {
+  const data = ctx.getImageData(0, 0, w, h);
+  const d = data.data;
+  const b = brightness / 100, c = contrast / 100;
+  for (let i = 0; i < d.length; i += 4) {
+    let r = d[i], g = d[i+1], bl = d[i+2];
+    r += b*255; g += b*255; bl += b*255;
+    r = ((r/255-.5)*(1+c)+.5)*255;
+    g = ((g/255-.5)*(1+c)+.5)*255;
+    bl = ((bl/255-.5)*(1+c)+.5)*255;
+    if (invert) { r=255-r; g=255-g; bl=255-bl; }
+    d[i] = Math.max(0,Math.min(255,r));
+    d[i+1] = Math.max(0,Math.min(255,g));
+    d[i+2] = Math.max(0,Math.min(255,bl));
+  }
+  ctx.putImageData(data, 0, 0);
+}
+
+function renderASCII(ctx, cols, rows) {
+  const charset = getCharset();
+  const len = charset.length;
+  const px = ctx.getImageData(0, 0, cols, rows).data;
+  let out = '';
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const i = (y * cols + x) * 4;
+      const lum = 0.299*px[i] + 0.587*px[i+1] + 0.114*px[i+2];
+      out += charset[Math.floor((lum / 255) * (len - 1))];
+    }
+    out += '\n';
+  }
+  return out;
+}
+
+// ✅ FIXED: Threshold was mapping dark/light backwards
+function renderASCIIThreshold(ctx, cols, rows, threshold = 128) {
+  const charset = getCharset();
+  const len = charset.length;
+  const px = ctx.getImageData(0, 0, cols, rows).data;
+  let out = '';
+  for (let y = 0; y < rows; y++) {
+    for (let x = 0; x < cols; x++) {
+      const i = (y * cols + x) * 4;
+      const lum = 0.299*px[i] + 0.587*px[i+1] + 0.114*px[i+2];
+      if (lum < threshold) {
+        out += charset[0]; // Dark text → first/darkest character
+      } else {
+        out += charset[len - 1]; // Light background → last/lightest character (usually space)
+      }
+    }
+    out += '\n';
+  }
+  return out;
+}
+
+// ── GENERATE FROM IMAGE ───────────────────────────────────────────────────────
+
+function generateFromImage() {
+  if (!loadedImage) { document.getElementById('imgStatus').textContent = '⚠ Upload an image first.'; return; }
+  const cols = +document.getElementById('imgWidthRange').value;
+  const brightness = +document.getElementById('brightnessRange').value;
+  const contrast = +document.getElementById('contrastRange').value;
+  const invert = document.getElementById('invertRange').value === '1';
+
+  showLoading('imgLoadBar', 'imgStatus', 'Converting pixels to characters…');
+  setTimeout(() => {
+    const aspect = 0.5;
+    const rows = Math.max(1, Math.floor((loadedImage.height / loadedImage.width) * cols * aspect));
+    const canvas = document.getElementById('workCanvas');
+    canvas.width = cols; canvas.height = rows;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true; // Smoothing helps grayscale mapping for photos
+    ctx.drawImage(loadedImage, 0, 0, cols, rows);
+    applyFilters(ctx, cols, rows, brightness, contrast, invert);
+    const ascii = renderASCII(ctx, cols, rows);
+    showOutput(ascii);
+    document.getElementById('imgStatus').textContent = `✓ Done — ${cols}×${rows} · charset: ${activeCharsetKey}`;
+    hideLoading('imgLoadBar');
+  }, 50);
+}
+
+// ── GENERATE FROM TEXT ────────────────────────────────────────────────────────
+
+function generateFromText() {
+  const text = document.getElementById('textInput').value.trim();
+  if (!text) { document.getElementById('txtStatus').textContent = '⚠ Enter some text first.'; return; }
+
+  const fontSize = +document.getElementById('fontSizeRange').value;
+  const cols = +document.getElementById('txtWidthRange').value;
+  const bold = document.getElementById('boldRange').value === '1';
+  const optimizeText = document.getElementById('textOptimize').checked;
+  const font = FONTS.find(f => f.name === activeFont) || FONTS[0];
+
+  showLoading('txtLoadBar', 'txtStatus', 'Rendering text to canvas…');
+  setTimeout(() => {
+    const tmp = document.createElement('canvas');
+    const tCtx = tmp.getContext('2d');
+    const weight = bold ? '900' : '700';
+    const fontSizePx = fontSize * 3; // 3x render size for crisp downscaling
+    tCtx.font = `${weight} ${fontSizePx}px ${font.css}`;
+    
+    // Measure text accurately
+    const metrics = tCtx.measureText(text);
+    const w = Math.ceil(metrics.width) + fontSizePx * 2;
+    const h = Math.ceil(fontSizePx * 2.5);
+    tmp.width = w; tmp.height = h;
+    
+    // Pure white background
+    tCtx.fillStyle = '#ffffff';
+    tCtx.fillRect(0, 0, w, h);
+    
+    // Pure black text
+    tCtx.font = `${weight} ${fontSizePx}px ${font.css}`;
+    tCtx.fillStyle = '#000000';
+    tCtx.textBaseline = 'middle';
+    tCtx.textAlign = 'center';
+    tCtx.direction = font.arabic ? 'rtl' : 'ltr';
+    tCtx.fillText(text, w / 2, h / 2);
+    
+    // Correct aspect ratio for monospace terminals
+    const aspect = 0.5;
+    const rows = Math.max(8, Math.floor((h / w) * cols * aspect));
+    
+    const canvas = document.getElementById('workCanvas');
+    canvas.width = cols; 
+    canvas.height = rows;
+    const ctx = canvas.getContext('2d');
+    
+    // Disable smoothing for text to keep edges sharp before thresholding
+    ctx.imageSmoothingEnabled = optimizeText ? false : true;
+    ctx.drawImage(tmp, 0, 0, cols, rows);
+    
+    let ascii;
+    if (optimizeText) {
+      // High contrast binary mode for crisp text
+      applyFilters(ctx, cols, rows, 0, 80, false); // Higher contrast
+      ascii = renderASCIIThreshold(ctx, cols, rows, 128);
+    } else {
+      applyFilters(ctx, cols, rows, 0, 30, false);
+      ascii = renderASCII(ctx, cols, rows);
+    }
+    
+    showOutput(ascii);
+    document.getElementById('txtStatus').textContent = `✓ Done — "${text}" · ${cols}×${rows} · charset: ${activeCharsetKey}`;
+    hideLoading('txtLoadBar');
+  }, 50);
+}
+
+// ── VIDEO HANDLING ────────────────────────────────────────────────────────────
+let videoFrames = [];
+let videoPlaybackInterval = null;
+let videoLoaded = false;
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('imgPanel').classList.toggle('visible', mode === 'image');
+  document.getElementById('textPanel').classList.toggle('visible', mode === 'text');
+  document.getElementById('videoPanel').classList.toggle('visible', mode === 'video');
+  document.getElementById('modeImgCard').classList.toggle('active', mode === 'image');
+  document.getElementById('modeTextCard').classList.toggle('active', mode === 'text');
+  document.getElementById('modeVidCard').classList.toggle('active', mode === 'video');
+  document.getElementById('outputSection').classList.remove('visible');
+  if (videoPlaybackInterval) { clearInterval(videoPlaybackInterval); videoPlaybackInterval = null; }
+}
+
+function handleVideoSelect(e) {
+  const file = e.target.files[0];
+  if (!file || !file.type.startsWith('video/')) return;
+  
+  const url = URL.createObjectURL(file);
+  const video = document.createElement('video');
+  video.src = url;
+  video.muted = true;
+  video.playsInline = true;
+  video.onloadeddata = () => {
+    videoLoaded = true;
+    document.getElementById('videoStatus').textContent = `✓ Loaded: ${file.name} (${Math.floor(video.duration)}s)`;
+    URL.revokeObjectURL(url);
+  };
+  video.load();
+}
+
+async function generateFromVideo() {
+  if (!videoLoaded) { document.getElementById('videoStatus').textContent = '⚠ Upload a video first.'; return; }
+  
+  const fps = +document.getElementById('videoFpsRange').value;
+  const cols = +document.getElementById('videoWidthRange').value;
+  const maxSec = +document.getElementById('videoMaxDurRange').value;
+  const charset = getCharset();
+  const len = charset.length;
+  
+  showLoading('videoLoadBar', 'videoStatus', 'Extracting & converting frames…');
+  
+  // Reset
+  videoFrames = [];
+  if (videoPlaybackInterval) clearInterval(videoPlaybackInterval);
+  
+  const video = document.createElement('video');
+  video.src = document.getElementById('videoInput').files[0] ? 
+              URL.createObjectURL(document.getElementById('videoInput').files[0]) : '';
+  video.muted = true;
+  await video.play();
+  
+  const aspect = 0.5;
+  const rows = Math.max(6, Math.floor((video.videoHeight / video.videoWidth) * cols * aspect));
+  const frameInterval = 1 / fps;
+  const maxFrames = Math.floor(maxSec * fps);
+  const canvas = document.getElementById('workCanvas');
+  const ctx = canvas.getContext('2d');
+  
+  let frameCount = 0;
+  let lastTime = 0;
+  
+  const processFrame = () => {
+    if (frameCount >= maxFrames || video.currentTime >= video.duration) {
+      video.pause();
+      URL.revokeObjectURL(video.src);
+      showOutput(videoFrames.join('\n---FRAME---\n'));
+      startASCIIPlayback(fps);
+      document.getElementById('videoStatus').textContent = `✓ Done — ${frameCount} frames at ${fps}fps`;
+      hideLoading('videoLoadBar');
+      return;
+    }
+    
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(video, 0, 0, cols, rows);
+    
+    // Apply subtle contrast boost for video
+    applyFilters(ctx, cols, rows, 0, 25, false);
+    
+    const px = ctx.getImageData(0, 0, cols, rows).data;
+    let frameStr = '';
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const i = (y * cols + x) * 4;
+        const lum = 0.299*px[i] + 0.587*px[i+1] + 0.114*px[i+2];
+        frameStr += charset[Math.floor((lum / 255) * (len - 1))];
+      }
+      frameStr += '\n';
+    }
+    videoFrames.push(frameStr);
+    frameCount++;
+    
+    // Yield to main thread every 5 frames to prevent freezing
+    if (frameCount % 5 === 0) {
+      document.getElementById('videoStatus').textContent = `Processing… ${frameCount}/${maxFrames} frames`;
+      setTimeout(processFrame, 0);
+    } else {
+      processFrame();
+    }
+  };
+  
+  processFrame();
+}
+
+function startASCIIPlayback(fps) {
+  if (videoPlaybackInterval) clearInterval(videoPlaybackInterval);
+  const out = document.getElementById('asciiOutput');
+  let idx = 0;
+  videoPlaybackInterval = setInterval(() => {
+    if (idx >= videoFrames.length) idx = 0;
+    out.textContent = videoFrames[idx];
+    idx++;
+  }, 1000 / fps);
+}
+
+// Override copy/download to handle video frames cleanly
+function copyASCII() {
+  const text = currentMode === 'video' ? videoFrames.join('\n') : currentASCII;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+// ── UI HELPERS ────────────────────────────────────────────────────────────────
+
+function showLoading(barId, statusId, msg) {
+  const bar = document.getElementById(barId);
+  bar.innerHTML = '<div class="loading-bar-fill"></div>';
+  bar.classList.add('visible');
+  document.getElementById(statusId).textContent = msg;
+  document.getElementById('outputSection').classList.remove('visible');
+}
+
+function hideLoading(barId) {
+  setTimeout(() => document.getElementById(barId).classList.remove('visible'), 600);
+}
+
+function showOutput(ascii) {
+  currentASCII = ascii;
+  const out = document.getElementById('asciiOutput');
+  out.textContent = ascii;
+  if (!outputColor) out.style.color = '';
+  document.getElementById('outputSection').classList.add('visible');
+  document.getElementById('outputSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function copyASCII() {
+  navigator.clipboard.writeText(currentASCII).then(() => {
+    const btn = event.target;
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function downloadASCII() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([currentASCII], { type: 'text/plain' }));
+  a.download = 'ascii-art.txt';
+  a.click();
+}
+
+function downloadPNG() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  const color = outputColor || (isDark ? '#c8f564' : '#1e4000');
+  const bg = isDark ? '#0a0a0a' : '#f4f1ea';
+  const fontSize = parseFloat(document.getElementById('asciiOutput').style.fontSize) || 8;
+  const lines = currentASCII.split('\n');
+  const lineH = fontSize * 1.15;
+  const off = document.createElement('canvas');
+  const mCtx = off.getContext('2d');
+  mCtx.font = `${fontSize}px 'DM Mono', monospace`;
+  const charW = mCtx.measureText('M').width;
+  const maxLen = Math.max(...lines.map(l => l.length));
+  off.width = Math.ceil(charW * maxLen) + 24;
+  off.height = Math.ceil(lineH * lines.length) + 24;
+  const ctx = off.getContext('2d');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, off.width, off.height);
+  ctx.fillStyle = color;
+  ctx.font = `${fontSize}px 'DM Mono', monospace`;
+  ctx.textBaseline = 'top';
+  lines.forEach((line, i) => ctx.fillText(line, 12, 12 + i * lineH));
+  off.toBlob(blob => {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'ascii-art.png';
+    a.click();
+  });
+}
+</script>
+</body>
+</html>
